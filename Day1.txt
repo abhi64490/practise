@@ -1,0 +1,105 @@
+use hello
+
+Temporary Table:
+select * from Table_2
+insert into Table_2 values ('E',1),('E',2),('E',3),('E',3),('F',1),('F',2),('F',1),('G',1),('G',2)
+
+
+select A,B into #temp_table from Table_2
+
+select * from #temp_table
+
+->identical column having count more than 1:
+select A,B , count(A) as cnt from Table_2 group by A,B having count(*) >1
+
+-> select the even number rows without using any index column
+select * from(
+select row_number() over( order by ) s, A,B, row_number() over (PARTITION BY A,B order by A,B) as cnt from Table_2) as t where t.s%2=0
+
+-> print the rows where both column A and B are null:
+select * from (select * from Table_1 where A is null) as t where B is null
+select * from Table_1 where A is null and b is null
+
+
+-Procedure:
+
+### Create_Procedure:
+
+->create Procedure MyProcedure2
+As
+Begin
+Select * from Table_2
+End
+
+Execute MyProcedure2
+
+### Alter procedure:
+
+->Alter procedure myprocedure 2
+@B int
+As
+Begin
+
+if @B>1
+Begin
+select * from Table_2 where B=@B
+End
+Else
+begin
+select * from Table_2
+End
+End
+Execute myprocedure 2
+
+
+ ## Drop_Procedure:
+
+ ->drop procedure myprocedure2
+
+Here, we create a stored procedure with SELECT, INSERT, UPDATE, and DELETE SQL statements. 
+The SELECT SQL statement is used to fetch rows from a database table. The INSERT statement is used to add new rows to a table. 
+The UPDATE statement is used to edit and update the values of an existing record. 
+The DELETE statement is used to delete records from a database table.
+The following SQL stored procedure is used insert, update, delete, 
+and select rows from a table, depending on the statement type parameter.    
+
+create PROCEDURE miud (@A INTEGER,
+                      @B VARCHAR(10),
+                      @c VARCHAR(10),
+                      @StatementType NVARCHAR(20) = '')
+AS
+  BEGIN
+      IF @StatementType = 'Insert'
+        BEGIN
+            INSERT INTO Table_1
+                        (A,
+                         B,
+                         c)
+            VALUES     ( @A,
+                         @B,
+                         @c)
+        END
+
+      IF @StatementType = 'Select'
+        BEGIN
+            SELECT *
+            FROM Table_1
+        END
+
+      IF @StatementType = 'Update'
+        BEGIN
+            UPDATE Table_1
+            SET    A=@A,
+				   B=@B,
+				   c=@c
+            WHERE  A = @A
+        END
+      ELSE IF @StatementType = 'Delete'
+        BEGIN
+            DELETE FROM Table_1
+            WHERE  A= @A
+        END
+  END
+
+- To execute procedure press F5 or excute it from Database -> Programability -> locate created procedure (right click on it and execute)
+ 
